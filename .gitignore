@@ -57,3 +57,6 @@ freeline_project_description.json
 # Max OS displat store files
 .DS_Store
 **/.DS_Store
+
+# Android Studio properties files
+.idea
