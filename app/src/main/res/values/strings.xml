@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">人脸检测 Demo</string>
+    <string name="btn_start_preview">开始预览</string>
+</resources>

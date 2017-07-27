@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="work.petrichor.petrichor.views.PreviewActivity">
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <work.petrichor.petrichor.views.items.CameraView
+            android:id="@+id/sfvPreview"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
+        <work.petrichor.petrichor.views.items.DrawView
+            android:id="@+id/viewDraw"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+    </FrameLayout>
+
+    <FrameLayout
+        android:background="@drawable/gradient_control_panel"
+        android:layout_gravity="bottom"
+        android:paddingTop="30dp"
+        android:paddingBottom="60dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btnCapture"
+            android:background="@drawable/btn_capture"
+            android:layout_gravity="center"
+            android:layout_width="60dp"
+            android:layout_height="60dp" />
+
+        <Button
+            android:onClick="doSopPreview"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_gravity="center_vertical"
+            android:layout_marginStart="40dp"
+            android:background="@android:drawable/ic_menu_revert" />
+
+    </FrameLayout>
+
+</FrameLayout>
