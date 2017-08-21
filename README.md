@@ -57,17 +57,16 @@ android {
         minSdkVersion 19
         targetSdkVersion 25
         // more options
-    }
-    // more options
-    jackOptions {
-        enabled true
-    }
-    dexOptions {
-        incremental true
-    }
-    compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        jackOptions {
+            enabled true
+        }
+        dexOptions {
+            incremental true
+        }
+        compileOptions {
+            sourceCompatibility JavaVersion.VERSION_1_8
+            targetCompatibility JavaVersion.VERSION_1_8
+        }
     }
 }
 
