@@ -4,6 +4,8 @@
     <modules>
       <module fileurl="file://$PROJECT_DIR$/Petrichor.iml" filepath="$PROJECT_DIR$/Petrichor.iml" />
       <module fileurl="file://$PROJECT_DIR$/app/app.iml" filepath="$PROJECT_DIR$/app/app.iml" />
+      <module fileurl="file://$PROJECT_DIR$/seeta/seeta.iml" filepath="$PROJECT_DIR$/seeta/seeta.iml" />
+      <module fileurl="file://$PROJECT_DIR$/vision/vision.iml" filepath="$PROJECT_DIR$/vision/vision.iml" />
     </modules>
   </component>
 </project>
