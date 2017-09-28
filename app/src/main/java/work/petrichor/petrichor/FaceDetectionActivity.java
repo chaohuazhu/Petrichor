@@ -9,6 +9,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.util.Log;
+import android.view.View;
 
 import java.io.IOException;
 
@@ -63,7 +64,8 @@ public class FaceDetectionActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        mPreview.stop();
+        if (mCameraSource != null)
+            mCameraSource.release();
     }
 
 
@@ -108,6 +110,16 @@ public class FaceDetectionActivity extends Activity {
                 .setMessage(R.string.no_camera_permission)
                 .setPositiveButton(R.string.ok, listener)
                 .show();
+    }
+
+    public void reverseCamera(View view) {
+        if (mCameraSource != null) {
+            mCameraSource.stop();
+        }
+    }
+
+    public void stopPreview(View view) {
+        finish();
     }
 
     private void createCameraSource() {

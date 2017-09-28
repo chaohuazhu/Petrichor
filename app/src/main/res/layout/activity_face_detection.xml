@@ -1,22 +1,75 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:background="#000"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     tools:context="work.petrichor.petrichor.FaceDetectionActivity">
 
-    <work.petrichor.petrichor.ui.camera.CameraSourcePreview
-        android:id="@+id/preview"
+    <FrameLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="match_parent">
 
-        <work.petrichor.petrichor.ui.camera.GraphicOverlay
-            android:id="@+id/faceOverlay"
+        <work.petrichor.petrichor.ui.camera.CameraSourcePreview
+            android:id="@+id/preview"
             android:layout_width="match_parent"
-            android:layout_height="match_parent" />
+            android:layout_height="wrap_content">
 
-    </work.petrichor.petrichor.ui.camera.CameraSourcePreview>
+            <work.petrichor.petrichor.ui.camera.GraphicOverlay
+                android:id="@+id/faceOverlay"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent" />
 
+        </work.petrichor.petrichor.ui.camera.CameraSourcePreview>
+
+        <FrameLayout
+            android:layout_gravity="top|center"
+            android:background="@color/colorPrimaryDarkAlpha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="30dp"
+            android:paddingBottom="10dp">
+
+            <Button
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_gravity="center"
+                android:background="@android:drawable/ic_menu_compass"
+                android:onClick="reverseCamera" />
+
+        </FrameLayout>
+
+        <FrameLayout
+            android:layout_gravity="bottom|center"
+            android:background="@color/colorPrimaryDarkAlpha"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingTop="20dp"
+            android:paddingBottom="60dp">
+
+            <Button
+                android:layout_gravity="center_vertical"
+                android:background="@android:drawable/ic_menu_revert"
+                android:onClick="stopPreview"
+                android:layout_marginStart="40dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+
+            <Button
+                android:layout_gravity="center_vertical|end"
+                android:background="@android:drawable/picture_frame"
+                android:layout_marginEnd="40dp"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+
+            <Button
+                android:layout_gravity="center"
+                android:background="@android:drawable/ic_menu_camera"
+                android:onClick="reverseCamera"
+                android:layout_width="40dp"
+                android:layout_height="40dp" />
+
+        </FrameLayout>
+
+    </FrameLayout>
 </FrameLayout>
