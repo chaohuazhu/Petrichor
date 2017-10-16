@@ -127,6 +127,10 @@ class CameraHolder {
         }
     }
 
+    void doTakePicture(Camera.PictureCallback callback) {
+        camera.takePicture(null, null, callback);
+    }
+
     private int getPreviewFormat(Camera.Parameters params) {
         List<Integer> formats = params.getSupportedPreviewFormats();
         boolean token = false;
@@ -144,5 +148,9 @@ class CameraHolder {
 
     interface OpenCameraCallback {
         void hasCameraOpened();
+    }
+
+    interface PictureCallback extends Camera.PictureCallback {
+        void onPictureSaved(String path);
     }
 }

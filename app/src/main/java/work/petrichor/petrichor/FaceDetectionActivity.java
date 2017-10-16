@@ -4,7 +4,9 @@ import android.Manifest;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.hardware.Camera;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
@@ -13,6 +15,7 @@ import android.view.View;
 
 import java.io.IOException;
 
+import github.mitscherlich.jpack.utils.Base64Util;
 import work.petrichor.petrichor.ui.camera.CameraSourcePreview;
 import work.petrichor.petrichor.ui.camera.GraphicOverlay;
 import work.petrichor.vision.CameraSource;
@@ -27,6 +30,22 @@ public class FaceDetectionActivity extends Activity {
     private GraphicOverlay mGraphicOverlay;
 
     private static final int RC_HANDLE_CAMERA_PREM = 2;
+
+    class CameraPictureCallback extends CameraSource.PictureCallback {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            String imageBase = Base64Util.encode(data);
+            Intent intent = getIntent();
+            intent.putExtra("image_base", imageBase);
+            if (null == imageBase || imageBase.isEmpty()) {
+                Log.e(TAG, "Encode base64 string error!");
+                return;
+            }
+
+            setResult(RESULT_OK, intent);
+            finish();
+        }
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -116,6 +135,10 @@ public class FaceDetectionActivity extends Activity {
         if (mCameraSource != null) {
             mCameraSource.stop();
         }
+    }
+
+    public void takePicture(View view) {
+        mCameraSource.takePicture(new CameraPictureCallback());
     }
 
     public void stopPreview(View view) {

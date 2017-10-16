@@ -1,6 +1,17 @@
 <resources>
     <string name="app_name">Petrichor</string>
     <string name="ok">OK</string>
-    <string name="start_preview">开始预览</string>
+    <string name="cancel">取消</string>
+    <string name="start_preview">开启相机，进行认证</string>
     <string name="no_camera_permission">由于没有授予相机使用权限，应用将退出。</string>
+    <string name="sign_in">登录</string>
+    <string name="sign_up">注册</string>
+    <string name="user_name">用户名</string>
+    <string name="password">密码</string>
+    <string name="no_empty_name">用户名不能为空!</string>
+    <string name="no_empty_psk">密码不能为空!</string>
+    <string name="use_face_login">使用人脸登录</string>
+    <string name="use_name_and_psk">使用用户名 + 密码登录</string>
+    <string name="safe_info_text">为了用户安全性考虑，本应用\n注册登录使用需要记录您的面孔信息\n点击下方按钮即可开启\n手机相机进行预览</string>
+    <string name="empty_string" />
 </resources>

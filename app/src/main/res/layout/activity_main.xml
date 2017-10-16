@@ -5,20 +5,177 @@
     android:layout_height="match_parent"
     tools:context="work.petrichor.petrichor.MainActivity">
 
-    <Button
-        android:layout_gravity="center|start"
-        android:layout_marginStart="80dp"
-        android:text="@string/start_preview"
-        android:onClick="startPreview"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+    <LinearLayout
+        android:id="@+id/groupSignIn"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:orientation="vertical">
 
-    <Button
-        android:layout_gravity="center|end"
-        android:layout_marginEnd="80dp"
-        android:text="测试"
-        android:onClick="testUpload"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        <TextView
+            android:text="@string/sign_in"
+            android:textSize="35sp"
+            android:layout_marginBottom="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:labelFor="@id/signInUserName"
+                android:text="@string/user_name"
+                android:textSize="20sp"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/signInUserName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:inputType="text"
+                android:singleLine="true"
+                android:layout_marginEnd="0sp" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/rowPassword"
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:labelFor="@id/signInPassword"
+                android:text="@string/password"
+                android:textSize="20sp"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/signInPassword"
+                android:inputType="textPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:layout_marginEnd="0sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <CheckBox
+                android:text="@string/use_face_login"
+                android:id="@+id/cbUsingFaceLogin"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:onClick="doSignIn"
+                android:text="@string/sign_in"
+                android:textSize="15sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <Button
+                android:onClick="showSignUp"
+                android:text="@string/sign_up"
+                android:textSize="15sp"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/groupSignUp"
+        android:visibility="gone"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:padding="20dp"
+        android:orientation="vertical">
+
+        <TextView
+            android:text="@string/sign_up"
+            android:textSize="35sp"
+            android:layout_marginBottom="20dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content" />
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:labelFor="@id/signUpUserName"
+                android:text="@string/user_name"
+                android:textSize="20sp"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:id="@+id/signUpUserName"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:singleLine="true"
+                android:layout_marginEnd="0sp"
+                android:inputType="text" />
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <TextView
+                android:text="@string/password"
+                android:labelFor="@id/signUpPassword"
+                android:textSize="20sp"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content" />
+
+            <EditText
+                android:inputType="textPassword"
+                android:id="@+id/signUpPassword"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:selectAllOnFocus="true"
+                android:singleLine="true"
+                android:layout_marginEnd="0sp" />
+        </LinearLayout>
+
+        <LinearLayout
+            android:orientation="horizontal"
+            android:textSize="15sp"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <Button
+                android:onClick="doSignUp"
+                android:text="@string/sign_up"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+            <TextView
+                android:onClick="showSignIn"
+                android:text="@string/cancel"
+                android:layout_marginStart="35dp"
+                android:textColor="@color/colorAccent"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+        </LinearLayout>
+    </LinearLayout>
 
 </FrameLayout>

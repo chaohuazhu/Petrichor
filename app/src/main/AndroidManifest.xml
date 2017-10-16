@@ -4,8 +4,7 @@
 
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
-
-    <uses-permission android:required="true" android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -24,6 +23,7 @@
         <activity
             android:name=".FaceDetectionActivity"
             android:theme="@android:style/Theme.Holo.NoActionBar.TranslucentDecor" />
+        <activity android:name=".JumpActivity" />
     </application>
 
 </manifest>

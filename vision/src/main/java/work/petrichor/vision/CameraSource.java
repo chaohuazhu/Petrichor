@@ -1,6 +1,7 @@
 package work.petrichor.vision;
 
 import android.app.Activity;
+import android.hardware.Camera;
 import android.view.SurfaceHolder;
 
 import java.io.IOException;
@@ -19,14 +20,24 @@ public class CameraSource {
     public static final int CAMERA_FACING_FRONT = 1;
     public static final int CAMERA_FACING_BACK = 0;
 
-    private CameraSource() {
-
-    }
+    private CameraSource() { }
 
     private CameraHolder holder;
     private Size size;
 
     private int facing;
+
+    public static abstract class PictureCallback implements CameraHolder.PictureCallback {
+        @Override
+        public void onPictureTaken(byte[] data, Camera camera) {
+            throw new RuntimeException("Stub!");
+        }
+
+        @Override
+        public void onPictureSaved(String path) {
+            throw new RuntimeException("Stub!");
+        }
+    }
 
     public CameraHolder getHolder() {
         return holder;
@@ -114,5 +125,9 @@ public class CameraSource {
 
     public void release() {
         this.holder.releaseHolder();
+    }
+
+    public void takePicture(CameraHolder.PictureCallback callback) {
+        this.holder.doTakePicture(callback);
     }
 }

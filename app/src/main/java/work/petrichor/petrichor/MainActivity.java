@@ -1,46 +1,98 @@
 package work.petrichor.petrichor;
 
-import android.Manifest;
-import android.app.AlertDialog;
-import android.content.ContentUris;
-import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.database.Cursor;
-import android.net.Uri;
-import android.os.Build;
 import android.os.Handler;
 import android.os.Message;
-import android.provider.DocumentsContract;
-import android.provider.MediaStore;
-import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.CheckBox;
+import android.widget.CompoundButton;
+import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import java.io.File;
-import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 
-import github.mitscherlich.httputils.HttpUtils;
+import github.mitscherlich.jpack.utils.GsonUtil;
+import work.petrichor.petrichor.utils.helper.HttpHelper;
+import work.petrichor.petrichor.utils.helper.SharedHelper;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int FILE_SELECT_CODE = 0;
-    private static final int RC_HANDLE_RW_PREM = 1;
-    private static final int REVICE_RESPONSE_FROM_SERVER = 200;
+    public static final int USER_SIGN_UP_ACTION = 200;
+    public static final int USER_SIGN_IN_ACTION = 201;
+
     private static final String TAG = "MainActivity";
 
+    private String token = "";
+    private boolean usingFaceLogin = false;
+
+    //----------------------------------------------------------------------------------------------
+    // UI component
+    //----------------------------------------------------------------------------------------------
+
+    // 布局控件
+    private LinearLayout signInGroup;
+    private LinearLayout signUpGroup;
+    private LinearLayout signInPasswordRow;
+
+    // 输入控件
+    private EditText signInUserName;
+    private EditText signInPassword;
+    private EditText signUpUserName;
+    private EditText signUpPassword;
+
+    // 复选框
+    private CheckBox cbUsingFaceLogin;
+
+    // 用来处理网络回调的 handler
     private Handler mHandler = new Handler(new Handler.Callback() {
         @Override
-        public boolean handleMessage(Message message) {
-            if (message.what == REVICE_RESPONSE_FROM_SERVER) {
-                String result = (String) message.obj;
-                Toast.makeText(getApplicationContext(), "Server response message: " + result, Toast.LENGTH_LONG).show();
-            } return false;
+        public boolean handleMessage(Message msg) {
+            HttpHelper.NetworkResult result = GsonUtil.fromJson((String) msg.obj, HttpHelper.NetworkResult.class);
+            switch (msg.what) {
+                case USER_SIGN_IN_ACTION: {
+                    if (result.getResult()) {
+                        // 注册成功，将用户名和标识符写入本地缓存
+                        makeToast("登录成功").show();
+                        SharedHelper.put(getApplicationContext(), "token", result.getMessage());
+                    } else {
+                        if (result.getCode() == HttpHelper.NetworkResult.ERR_SERVER_FAIL) {
+                            makeToast("登录失败").show();
+                            signInUserName.setEnabled(true);
+                            signInPassword.setEnabled(true);
+                        } else if (result.getCode() == HttpHelper.NetworkResult.ERR_USER_NOT_EXIST) {
+                            makeToast("用户未注册").show();
+                            showSignUp(null);
+                        } else if (result.getCode() == HttpHelper.NetworkResult.ERR_PSK_IS_NOT_SAME) {
+                            makeToast("密码不正确").show();
+                            signInUserName.setEnabled(true);
+                            signInPassword.setEnabled(true);
+                        }
+                    }
+                } break;
+                case USER_SIGN_UP_ACTION: {
+                    if (result.getResult()) {
+                        // 注册成功，将用户 `TOKEN` 写入本地文件缓存
+                        makeToast("注册成功").show();
+                        SharedHelper.put(getApplicationContext(), "token", result.getMessage());
+                        showSignIn(null);
+                    } else {
+                        if (result.getCode() == HttpHelper.NetworkResult.ERR_SERVER_FAIL)
+                            makeToast("注册失败").show();
+                        else if (result.getCode() == HttpHelper.NetworkResult.ERR_USER_EXIST) {
+                            makeToast("用户已注册").show();
+                            showSignIn(null);
+                        }
+                    }
+                } break;
+                default: makeToast("服务器提了一个问题").show(); break;
+            }
+            return false;
         }
     });
 
@@ -49,144 +101,217 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M)
-            if (checkSelfPermission(Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED)
-                requestInternetPermission();
-    }
+        // 初始化视图组件
+        signInGroup = findViewById(R.id.groupSignIn);
+        signUpGroup = findViewById(R.id.groupSignUp);
+        signInUserName = findViewById(R.id.signInUserName);
+        signInPassword = findViewById(R.id.signInPassword);
+        signUpUserName = findViewById(R.id.signUpUserName);
+        signUpPassword = findViewById(R.id.signUpPassword);
+        signInPasswordRow = findViewById(R.id.rowPassword);
+        cbUsingFaceLogin = findViewById(R.id.cbUsingFaceLogin);
 
-    private void requestInternetPermission() {
-        Log.w(TAG, "Camera permission is not granted. Requesting permission.");
+        // 添加 `checkbox` 监听事件
+        cbUsingFaceLogin.setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
+                if (isChecked) signInPasswordRow.setVisibility(View.GONE);
+                else signInPasswordRow.setVisibility(View.VISIBLE);
 
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M)
-            if (!shouldShowRequestPermissionRationale(Manifest.permission.READ_EXTERNAL_STORAGE))
-                requestPermissions(new String[] {
-                        Manifest.permission.INTERNET,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.READ_EXTERNAL_STORAGE
-                }, RC_HANDLE_RW_PREM);
-    }
-
-    public void startPreview(View view) {
-        startActivity(new Intent(this, FaceDetectionActivity.class));
-    }
-
-    public void testUpload(View view) {
-        showFileChooser();
-    }
-
-    private void showFileChooser() {
-        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-        intent.setType("*/*");
-        intent.addCategory(Intent.CATEGORY_OPENABLE);
-        try {
-            startActivityForResult(Intent.createChooser(intent, "Select a File to Upload"), FILE_SELECT_CODE);
-        } catch (android.content.ActivityNotFoundException ex) {
-            // Potentially direct the user to the Market with a Dialog
-            Toast.makeText(this, "Please install a File Manager.", Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    private String handleImageOnKitKat(Intent data) {
-        String imagePath = null;
-        Uri uri = data.getData();
-
-        if (DocumentsContract.isDocumentUri(this, uri)) {
-            String docId = DocumentsContract.getDocumentId(uri);
-            if ("com.android.providers.media.documents".equals(uri.getAuthority())) {
-                //Log.d(TAG, uri.toString());
-                String id = docId.split(":")[1];
-                String selection = MediaStore.Images.Media._ID + "=" + id;
-                imagePath = getImagePath(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, selection);
-            } else if ("com.android.providers.downloads.documents".equals(uri.getAuthority())) {
-                //Log.d(TAG, uri.toString());
-                Uri contentUri = ContentUris.withAppendedId(
-                        Uri.parse("content://downloads/public_downloads"),
-                        Long.valueOf(docId));
-                imagePath = getImagePath(contentUri, null);
+                usingFaceLogin = isChecked;
             }
-        } else if ("content".equalsIgnoreCase(uri.getScheme())) {
-            //Log.d(TAG, "content: " + uri.toString());
-            imagePath = getImagePath(uri, null);
-        }
-
-        return imagePath;
+        });
     }
 
-    private String getImagePath(Uri uri, String selection) {
-        String path = null;
-        Cursor cursor = getContentResolver().query(uri, null, selection, null, null);
-        if (cursor != null) {
-            if (cursor.moveToFirst()) {
-                path = cursor.getString(cursor.getColumnIndex(MediaStore.Images.Media.DATA));
-            }
+    @Override
+    protected void onStart() {
+        super.onStart();
 
-            cursor.close();
-        }
-        return path;
+        // 从本地缓存文件中加载登录用户的 `token`
+        String token = (String) SharedHelper.get(getApplicationContext(), "token", "");
+        if (token != null && !token.isEmpty())
+            this.token = token;
+
+        // 从本地缓存文件中加载缓存的用户名
+        String name = (String) SharedHelper.get(getApplicationContext(), "name", "");
+        if (!(name == null || name.isEmpty()))
+            signInUserName.setText(name);
+
+        boolean is = cbUsingFaceLogin.isChecked();
+        if (is) signInPasswordRow.setVisibility(View.GONE);
+        else signInPasswordRow.setVisibility(View.VISIBLE);
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        switch (requestCode) {
-            case FILE_SELECT_CODE:
-                if (resultCode == RESULT_OK) {
-                    // Get the Uri of the selected file
-                    final String path = handleImageOnKitKat(data);
-                    android.util.Log.d(TAG, "File Path: " + path);
-
-                    if (path == null) break;
-
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Map<String, String> userField = new HashMap<>();
-                            userField.put("uid", "admin");
-                            userField.put("psk", "123");
-
-                            Map<String, File> uploadFileField = new HashMap<>();
-                            uploadFileField.put("uploadFile", new File(path));
-
-                            try {
-                                String result = HttpUtils.submitMultipartyPostData("http://192.168.1.20:8080/access", userField, uploadFileField);
-                                Message message = mHandler.obtainMessage();
-                                message.what = REVICE_RESPONSE_FROM_SERVER;
-                                message.obj = result;
-                                message.sendToTarget();
-                            } catch (IOException e) {
-                                android.util.Log.e(TAG, "server connect failed " + e);
-                            }
-                        }
-                    }).start();
-                }
-                break;
-        }
         super.onActivityResult(requestCode, resultCode, data);
+        // 判断返回的 `data` 是否包含数据
+        if (null == data || null ==  data.getExtras()) return;
+
+        String imageBase = "";
+
+        try {
+            imageBase = data.getExtras().getString("image_base");
+            if (null == imageBase || imageBase.isEmpty())
+                return;
+        } catch (Exception e) {
+            Log.e(TAG, "Intent result receive error!\n" + e);
+        }
+
+        switch (requestCode) {
+            case USER_SIGN_IN_ACTION:
+                if (usingFaceLogin)
+                    // 使用人脸登录时，只需提供用户名和人脸数据
+                    signIn(imageBase);
+                else
+                    signIn();
+                break;
+            case USER_SIGN_UP_ACTION:
+                signUp(imageBase);
+                break;
+            default: break;
+        }
     }
 
-    @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
-        if (requestCode != RC_HANDLE_RW_PREM) {
-            Log.d(TAG, "Got unexpected permission result: " + requestCode);
-            super.onRequestPermissionsResult(requestCode, permissions, grantResults);
-        }
-
-        if (grantResults.length != 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-            Log.d(TAG, "Internet permission granted - initialize the camera source");
+    /**
+     * 登录
+     * @param view  视图
+     * **/
+    public void doSignIn(View view) {
+        String name = signInUserName.getText().toString();
+        if (name.isEmpty()) {
+            makeToast(R.string.no_empty_name).show();
             return;
         }
 
-        Log.e(TAG, "Permission not granted: results len = " + grantResults.length +
-                " Result code = " + (grantResults.length > 0 ? grantResults[0] : "(empty)"));
+        if (usingFaceLogin)
+            startActivityForResult(new Intent(this, FaceDetectionActivity.class), USER_SIGN_IN_ACTION);
+        else {
+            String password = signInPassword.getText().toString();
+            if (password.isEmpty()) {
+                makeToast(R.string.no_empty_psk).show();
+                return;
+            }
+            signIn();
+        }
+    }
 
-        DialogInterface.OnClickListener listener = new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialogInterface, int id) { finish(); }
-        };
+    /**
+     * 注册
+     * @param view  视图
+     * **/
+    public void doSignUp(View view) {
+        String name = signUpUserName.getText().toString();
+        if (name.isEmpty()) {
+            makeToast(R.string.no_empty_name).show();
+            return;
+        }
 
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
-        builder.setTitle("Face Detection Demo")
-                .setMessage("测试需要SD卡访问权限")
-                .setPositiveButton(R.string.ok, listener)
-                .show();
+        String password = signUpPassword.getText().toString();
+        if (password.isEmpty()) {
+            makeToast(R.string.no_empty_psk).show();
+            return;
+        }
+
+        startActivityForResult(new Intent(this, JumpActivity.class), USER_SIGN_UP_ACTION);
+    }
+
+    /**
+     * 显示注册框
+     * @param view  视图
+     * **/
+    public void showSignUp(View view) {
+        signInGroup.setVisibility(View.GONE);
+        signUpGroup.setVisibility(View.VISIBLE);
+
+        // 清空上一次输入
+        signUpUserName.setText(R.string.empty_string);
+        signUpPassword.setText(R.string.empty_string);
+    }
+
+    /**
+     * 显示登录框
+     * @param view  视图
+     * **/
+    public void showSignIn(View view) {
+        signUpGroup.setVisibility(View.GONE);
+        signInGroup.setVisibility(View.VISIBLE);
+        signInUserName.setEnabled(true);
+        signInPassword.setEnabled(true);
+
+        String name = (String) SharedHelper.get(getApplicationContext(), "name", "");
+
+        if (!(name == null || name.isEmpty()))
+            signInUserName.setText(name);
+    }
+
+    private Toast makeToast(@StringRes int resId) {
+        return Toast.makeText(getApplicationContext(), getApplication().getText(resId), Toast.LENGTH_LONG);
+    }
+
+    /**
+     * 显示 Toast
+     * @param   message 要显示的文本
+     * **/
+    private Toast makeToast(String message) {
+        return Toast.makeText(getApplicationContext(), message, Toast.LENGTH_LONG);
+    }
+
+    /**
+     * 登录
+     * {@link #signIn(String)}
+     * **/
+    private void signIn() {
+        String name = signInUserName.getText().toString();
+        String password = signInPassword.getText().toString();
+
+        signInUserName.setEnabled(false);
+        signInPassword.setEnabled(false);
+
+        String url = "http://192.168.1.20:8080/user/signin";
+        Map<String, String> params = new HashMap<>();
+
+        SharedHelper.put(getApplicationContext(), "name", name);
+
+        params.put("name", name);
+        params.put("password", password);
+
+        new HttpHelper(url, params).post(mHandler, USER_SIGN_IN_ACTION);
+    }
+
+    /**
+     * 登录
+     * @param imageBase Base64 编码的图像数据
+     * **/
+    private void signIn(String imageBase) {
+        String name = signInUserName.getText().toString();
+
+        signInUserName.setEnabled(false);
+        signInPassword.setEnabled(false);
+
+        String url = "http://192.168.1.20:8080/user/signin";
+        Map<String, String> params = new HashMap<>();
+
+        SharedHelper.put(getApplicationContext(), "name", name);
+
+        params.put("name", name);
+        params.put("image", imageBase);
+
+        new HttpHelper(url, params).post(mHandler, USER_SIGN_IN_ACTION);
+    }
+
+    private void signUp(String imageBase) {
+        String url = "http://192.168.1.20:8080/user/signup";
+        Map<String, String> params = new HashMap<>();
+
+        String name = signUpUserName.getText().toString();
+        String password = signUpPassword.getText().toString();
+        SharedHelper.put(getApplicationContext(), "name", name);
+
+        params.put("name", name);
+        params.put("password", password);
+        params.put("image", imageBase);
+
+        new HttpHelper(url, params).post(mHandler, USER_SIGN_UP_ACTION);
     }
 }
